@@ -2,30 +2,80 @@
 # -*- coding: utf-8 -*-
 import logging
 import os
-import requests
-from random import randint
-from telegram.ext import Updater, CommandHandler
+from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, RegexHandler
 from dotenv import load_dotenv
+
+from lib.retrievers import random_bike_photo, filter_retrieve_string, bike_specs
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 load_dotenv()
 
-GOOGLE_IMG_SEARCH_KEY = os.getenv("GOOGLE_IMG_SEARCH_KEY")
-GOOGLE_CX = os.getenv("GOOGLE_CX")
-QUERY = "Ducati Panigale"
+DEV_MODE = False
 
-updater = Updater(os.getenv("DUCATI_BOT_KEY"), use_context=True)
+RELEASE_BOT_KEY = os.getenv("DUCATI_BOT_KEY")
+DEV_BOT_KEY = os.getenv("DEVELOPMENT_BOT_KEY")
 
-
-def get_image(update, context):
-    request_url = "https://www.googleapis.com/customsearch/v1?cx={cx}&key={key}&searchType=image&q={query_text}".format(cx=GOOGLE_CX, key=GOOGLE_IMG_SEARCH_KEY, query_text=QUERY)
-    result = requests.get(request_url)
-    each_result = result.json()["items"]
-    image_url = each_result[randint(0, len(each_result))]["link"]
-    update.message.reply_text(image_url)
+updater = Updater(DEV_BOT_KEY if DEV_MODE else RELEASE_BOT_KEY, use_context=True)
 
 
-updater.dispatcher.add_handler(CommandHandler('get', get_image))
+def handle_message(update, context):
+    bot = context.bot
+    message_text = str(update.message.text).lower()
+    chat_id = update.message.chat.id
+
+    if "bot" not in message_text:
+        return
+
+    text_to_reply = None
+
+    image_matchers = ["foto", "photo", "image"]
+    specs_matchers = ["ficha", "specs", "motofichas", "informacion", "información"]
+    thanks_message = "Gracias {}, se agradece!"
+    sorry_message = "Hago lo que puedo 😞. Intentaré hacerlo mejor la próxima vez, {}"
+
+    if any(occurrence in message_text for occurrence in image_matchers):
+        max_index = 0
+        max_matcher = None
+        for matcher in image_matchers:
+            try:
+                found_index = message_text.index(matcher)
+                if found_index > max_index:
+                    max_index = found_index
+                    max_matcher = matcher
+            except:
+                pass
+        search_message = message_text.split(max_matcher)[1] if max_matcher else message_text
+        print("SEARCHING BIKE PHOTO FOR TEXT: {}".format(filter_retrieve_string(search_message)))
+        text_to_reply = random_bike_photo(filter_retrieve_string(search_message))
+    elif any(occurrence in message_text for occurrence in specs_matchers):
+        max_index = 0
+        max_matcher = None
+        for matcher in specs_matchers:
+            try:
+                found_index = message_text.index(matcher)
+                if found_index > max_index:
+                    max_index = found_index
+                    max_matcher = matcher
+            except:
+                pass
+        search_message = message_text.split(max_matcher)[1] if max_matcher else message_text
+        print("SEARCHING SPECS PAGE FOR TEXT: {}".format(filter_retrieve_string(search_message)))
+        text_to_reply = bike_specs(filter_retrieve_string(search_message))
+    elif "mierda" in message_text or "cagao" in message_text or "basura" in message_text:
+        bot.send_message(chat_id, sorry_message.format(update.message.from_user.first_name))
+        return
+    elif "buen" in message_text:
+        bot.send_message(chat_id, thanks_message.format(update.message.from_user.first_name))
+        return
+
+    if text_to_reply:
+        if text_to_reply == -1:
+            bot.send_message(chat_id, "No he encontrado nada :(")
+        else:
+            bot.send_message(chat_id, text_to_reply)
+
+
+updater.dispatcher.add_handler(RegexHandler(".*", handle_message))
 
 updater.start_polling()
 updater.idle()
