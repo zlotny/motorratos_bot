@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-GOOGLE_IMG_SEARCH_KEY = os.getenv("GOOGLE_IMG_SEARCH_KEY")
+GOOGLE_SEARCH_KEY = os.getenv("GOOGLE_SEARCH_KEY")
 GOOGLE_CX = os.getenv("GOOGLE_CX")
 
 ES_SYMBOLS = ["?", "!", ",", ".", ";", ":", "'", "\""]
@@ -25,7 +25,7 @@ def filter_retrieve_string(raw_string: str) -> str:
 def random_bike_photo(search_query: str) -> str:
     """ Returns a random motorcycle photo URL matching the search_query contents. """
     search_query = "{}".format(search_query)
-    request_url = "https://www.googleapis.com/customsearch/v1?cx={cx}&key={key}&searchType=image&q={query_text}".format(cx=GOOGLE_CX, key=GOOGLE_IMG_SEARCH_KEY, query_text=search_query)
+    request_url = "https://www.googleapis.com/customsearch/v1?cx={cx}&key={key}&searchType=image&q={query_text}".format(cx=GOOGLE_CX, key=GOOGLE_SEARCH_KEY, query_text=search_query)
     result = requests.get(request_url).json()
 
     if "error" in result.keys() and "daily limit" in result["error"]["message"]: 
@@ -42,7 +42,7 @@ def random_bike_photo(search_query: str) -> str:
 def bike_specs(search_query: str) -> str:
     """ Returns a given motorcycle specs url. """
     search_query = "motorcycle specs {}".format(search_query)
-    request_url = "https://www.googleapis.com/customsearch/v1?cx={cx}&key={key}&q={query_text}".format(cx=GOOGLE_CX, key=GOOGLE_IMG_SEARCH_KEY, query_text=search_query)
+    request_url = "https://www.googleapis.com/customsearch/v1?cx={cx}&key={key}&q={query_text}".format(cx=GOOGLE_CX, key=GOOGLE_SEARCH_KEY, query_text=search_query)
     result = requests.get(request_url).json()
 
     if "error" in result.keys() and "daily limit" in result["error"]["message"]: 

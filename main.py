@@ -10,12 +10,9 @@ from lib.retrievers import random_bike_photo, filter_retrieve_string, bike_specs
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 load_dotenv()
 
-DEV_MODE = False
+BOT_KEY = os.getenv("DUCATI_BOT_KEY")
 
-RELEASE_BOT_KEY = os.getenv("DUCATI_BOT_KEY")
-DEV_BOT_KEY = os.getenv("DEVELOPMENT_BOT_KEY")
-
-updater = Updater(DEV_BOT_KEY if DEV_MODE else RELEASE_BOT_KEY, use_context=True)
+updater = Updater(BOT_KEY, use_context=True)
 
 
 def handle_message(update, context):
