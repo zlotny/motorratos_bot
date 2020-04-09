@@ -14,7 +14,9 @@ BOT_KEY = os.getenv("DUCATI_BOT_KEY")
 
 updater = Updater(BOT_KEY, use_context=True)
 
-KEY_WORDS =["bot", "como dios manda"]
+STANDARD_KEY_WORDS = ["bot", "motobot"]
+FUNNY_KEY_WORDS = ["como dios manda"]
+KEY_WORDS = STANDARD_KEY_WORDS + FUNNY_KEY_WORDS
 
 
 def handle_message(update, context):
@@ -32,42 +34,46 @@ def handle_message(update, context):
     thanks_message = "Gracias {}, se agradece!"
     sorry_message = "Hago lo que puedo 😞. Intentaré hacerlo mejor la próxima vez, {}"
 
-    if any(occurrence in message_text for occurrence in image_matchers):
-        max_index = 0
-        max_matcher = None
-        for matcher in image_matchers:
-            try:
-                found_index = message_text.index(matcher)
-                if found_index > max_index:
-                    max_index = found_index
-                    max_matcher = matcher
-            except:
-                pass
-        search_message = message_text.split(max_matcher)[1] if max_matcher else message_text
-        print("SEARCHING BIKE PHOTO FOR TEXT: {}".format(filter_retrieve_string(search_message)))
-        text_to_reply = random_bike_photo(filter_retrieve_string(search_message))
-    elif any(occurrence in message_text for occurrence in specs_matchers):
-        max_index = 0
-        max_matcher = None
-        for matcher in specs_matchers:
-            try:
-                found_index = message_text.index(matcher)
-                if found_index > max_index:
-                    max_index = found_index
-                    max_matcher = matcher
-            except:
-                pass
-        search_message = message_text.split(max_matcher)[1] if max_matcher else message_text
-        print("SEARCHING SPECS PAGE FOR TEXT: {}".format(filter_retrieve_string(search_message)))
-        text_to_reply = bike_specs(filter_retrieve_string(search_message))
-    elif "como dios manda" in message_text:
-        text_to_reply = chicho_response()
-    elif "mierda" in message_text or "cagao" in message_text or "basura" in message_text:
-        bot.send_message(chat_id, sorry_message.format(update.message.from_user.first_name))
-        return
-    elif "buen" in message_text:
-        bot.send_message(chat_id, thanks_message.format(update.message.from_user.first_name))
-        return
+    if any(occurrence in message_text for occurrence in STANDARD_KEY_WORDS):
+        if any(occurrence in message_text for occurrence in image_matchers):
+            max_index = 0
+            max_matcher = None
+            for matcher in image_matchers:
+                try:
+                    found_index = message_text.index(matcher)
+                    if found_index > max_index:
+                        max_index = found_index
+                        max_matcher = matcher
+                except:
+                    pass
+            search_message = message_text.split(max_matcher)[1] if max_matcher else message_text
+            print("SEARCHING BIKE PHOTO FOR TEXT: {}".format(filter_retrieve_string(search_message)))
+            text_to_reply = random_bike_photo(filter_retrieve_string(search_message))
+        elif any(occurrence in message_text for occurrence in specs_matchers):
+            max_index = 0
+            max_matcher = None
+            for matcher in specs_matchers:
+                try:
+                    found_index = message_text.index(matcher)
+                    if found_index > max_index:
+                        max_index = found_index
+                        max_matcher = matcher
+                except:
+                    pass
+            search_message = message_text.split(max_matcher)[1] if max_matcher else message_text
+            print("SEARCHING SPECS PAGE FOR TEXT: {}".format(filter_retrieve_string(search_message)))
+            text_to_reply = bike_specs(filter_retrieve_string(search_message))
+        elif "mierda" in message_text or "cagao" in message_text or "basura" in message_text:
+            bot.send_message(chat_id, sorry_message.format(update.message.from_user.first_name))
+            return
+        elif "buen" in message_text:
+            bot.send_message(chat_id, thanks_message.format(update.message.from_user.first_name))
+            return
+
+    elif any(occurrence in message_text for occurrence in FUNNY_KEY_WORDS):
+        if "como dios manda" in message_text:
+            print("SEARCHING WISE ADVICE FROM CHICHO")
+            text_to_reply = chicho_response()
 
     if text_to_reply:
         if text_to_reply == -1:
