@@ -26,7 +26,7 @@ def random_bike_photo(search_query: str) -> str:
     """ Returns a random motorcycle photo URL matching the search_query contents. """
     search_query = "{}".format(search_query)
     request_url = "https://www.googleapis.com/customsearch/v1?cx={cx}&key={key}&searchType=image&q={query_text}".format(cx=GOOGLE_CX, key=GOOGLE_SEARCH_KEY, query_text=search_query)
-    return search(request_url)
+    return search(request_url, random=True)
 
 
 def bike_specs(search_query: str) -> str:
@@ -38,20 +38,20 @@ def bike_specs(search_query: str) -> str:
 
 def chicho_response() -> str:
     """ Returns a 'Como Dios Manda' response """
-    search_query = "{}".format("chicho lorenzo como dios manda")
+    search_query = "chicho lorenzo como dios manda"
     request_url = "https://www.googleapis.com/customsearch/v1?cx={cx}&key={key}&searchType=image&q={query_text}".format(cx=GOOGLE_CX, key=GOOGLE_SEARCH_KEY, query_text=search_query)
-    return search(request_url)
+    return search(request_url, random=True)
 
 
-def search(request_url: str) -> str:
+def search(request_url: str, random: bool = False) -> str:
     result = requests.get(request_url).json()
 
-    if "error" in result.keys() and "daily limit" in result["error"]["message"]: 
+    if "error" in result.keys() and "daily limit" in result["error"]["message"]:
         return "No puedo buscar más fichas hasta mañana. Sorry 😅."
 
     if "items" not in result.keys():
         return -1
 
     each_result = result["items"]
-    result_url = each_result[0]["link"]
+    result_url = each_result[0 if not random else randint(0, len(each_result) - 1)]["link"]
     return result_url
