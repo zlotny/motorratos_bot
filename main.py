@@ -5,7 +5,7 @@ import os
 from telegram.ext import Updater, CommandHandler, MessageHandler, Filters, RegexHandler
 from dotenv import load_dotenv
 
-from lib.retrievers import random_bike_photo, filter_retrieve_string, bike_specs
+from lib.retrievers import random_bike_photo, filter_retrieve_string, bike_specs, chicho_response
 
 logging.basicConfig(level=logging.DEBUG, format='%(asctime)s - %(name)s - %(levelname)s - %(message)s')
 load_dotenv()
@@ -58,6 +58,8 @@ def handle_message(update, context):
         search_message = message_text.split(max_matcher)[1] if max_matcher else message_text
         print("SEARCHING SPECS PAGE FOR TEXT: {}".format(filter_retrieve_string(search_message)))
         text_to_reply = bike_specs(filter_retrieve_string(search_message))
+    elif "como dios manda" in message_text:
+        text_to_reply = chicho_response()
     elif "mierda" in message_text or "cagao" in message_text or "basura" in message_text:
         bot.send_message(chat_id, sorry_message.format(update.message.from_user.first_name))
         return

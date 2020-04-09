@@ -26,23 +26,24 @@ def random_bike_photo(search_query: str) -> str:
     """ Returns a random motorcycle photo URL matching the search_query contents. """
     search_query = "{}".format(search_query)
     request_url = "https://www.googleapis.com/customsearch/v1?cx={cx}&key={key}&searchType=image&q={query_text}".format(cx=GOOGLE_CX, key=GOOGLE_SEARCH_KEY, query_text=search_query)
-    result = requests.get(request_url).json()
-
-    if "error" in result.keys() and "daily limit" in result["error"]["message"]: 
-        return "Nada chavales, se acabó el límite diario de búsquedas. A spamear a otro lado."
-
-    if "items" not in result.keys():
-        return -1
-
-    each_result = result["items"]
-    image_url = each_result[randint(0, len(each_result) - 1)]["link"]
-    return image_url
+    return search(request_url)
 
 
 def bike_specs(search_query: str) -> str:
     """ Returns a given motorcycle specs url. """
     search_query = "motorcycle specs {}".format(search_query)
     request_url = "https://www.googleapis.com/customsearch/v1?cx={cx}&key={key}&q={query_text}".format(cx=GOOGLE_CX, key=GOOGLE_SEARCH_KEY, query_text=search_query)
+    return search(request_url)
+
+
+def chicho_response() -> str:
+    """ Returns a 'Como Dios Manda' response """
+    search_query = "{}".format("chicho lorenzo como dios manda")
+    request_url = "https://www.googleapis.com/customsearch/v1?cx={cx}&key={key}&searchType=image&q={query_text}".format(cx=GOOGLE_CX, key=GOOGLE_SEARCH_KEY, query_text=search_query)
+    return search(request_url)
+
+
+def search(request_url: str) -> str:
     result = requests.get(request_url).json()
 
     if "error" in result.keys() and "daily limit" in result["error"]["message"]: 
@@ -52,5 +53,5 @@ def bike_specs(search_query: str) -> str:
         return -1
 
     each_result = result["items"]
-    specs_url = each_result[0]["link"]
-    return specs_url
+    result_url = each_result[0]["link"]
+    return result_url
