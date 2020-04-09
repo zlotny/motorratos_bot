@@ -14,13 +14,15 @@ BOT_KEY = os.getenv("DUCATI_BOT_KEY")
 
 updater = Updater(BOT_KEY, use_context=True)
 
+KEY_WORDS =["bot", "como dios manda"]
+
 
 def handle_message(update, context):
     bot = context.bot
     message_text = str(update.message.text).lower()
     chat_id = update.message.chat.id
 
-    if "bot" not in message_text:
+    if not any(occurrence in message_text for occurrence in KEY_WORDS):
         return
 
     text_to_reply = None
